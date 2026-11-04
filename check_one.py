@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import argparse
 import os
 import sys
@@ -52,12 +51,12 @@ def main():
            else manifest.iloc[0])
     cif = pdb_dir / f"{row.entry_id}.cif"
 
-    print(f"chain      : {row.entry_id} chain {row.chain_id}")
+    print(f"chain: {row.entry_id} chain {row.chain_id}")
 
     true, seq = contact_map(cif, row.chain_id)
     L = len(seq)
-    print(f"length     : {L} residues")
-    print(f"sequence   : {seq[:60]}{'...' if L > 60 else ''}")
+    print(f"length: {L} residues")
+    print(f"sequence: {seq[:60]}{'...' if L > 60 else ''}")
 
     if L != true.shape[0]:
         sys.exit(f"FAIL  seq is {L} but map is {true.shape[0]} — contact_map is broken")
@@ -90,12 +89,16 @@ def main():
     rng = np.random.default_rng(0)
     chance = np.mean([precision_at_L(rng.random((L, L)), true, L) for _ in range(50)])
 
-    print(f"{'band':<8}{'P@L':>8}{'pairs':>9}{'true':>8}")
+    print(f"{'band':<8}{'P@L':>8}{'ceiling':>9}{'of max':>8}{'pairs':>8}{'true':>7}")
+    achieved = {}
     for name, (lo, hi) in BANDS.items():
         p, n_pairs, n_true = band_precision(pred, true, L, lo, hi)
-        print(f"{name:<8}{p:>8.3f}{n_pairs:>9}{n_true:>8}")
+        ceiling = min(1.0, n_true / L) if L else float("nan")
+        frac = p / ceiling if ceiling > 0 else float("nan")
+        achieved[name] = frac
+        print(f"{name:<8}{p:>8.3f}{ceiling:>9.3f}{frac:>8.2f}{n_pairs:>8}{n_true:>7}")
     print(f"{'random':<8}{chance:>8.3f}   (long-range chance level)")
-
+    
     order = np.argsort(-pred[i, j])[:5]
     print("\ntop 5 long-range predictions:")
     for rank, idx in enumerate(order, 1):
@@ -105,16 +108,17 @@ def main():
               f"p={pred[a, b]:.3f}  sep={b - a:<4} {hit}")
 
     p_long, _, _ = band_precision(pred, true, L, 24, None)
-    p_short, _, _ = band_precision(pred, true, L, 6, 12)
     print()
     if p_long < chance * 3:
         print("FAIL  long-range is near chance. Sequence and contact map probably")
         print("      describe different residues. Check the chain and the glycine branch.")
-    elif p_short < 0.4:
-        print("WARN  short-range is low. Even a small model should find local structure;")
-        print("      suspect the ground truth rather than the model.")
+    elif achieved["short"] < 0.5:
+        print("WARN  short-range reaches under half its ceiling. Local structure is the")
+        print("      easy case, so suspect the ground truth rather than the model.")
     else:
         print("OK    numbers are sane. Wrap this in two loops and you have run_sweep.py.")
+        print(f"      long-range is {p_long / chance:.0f}x chance "
+              f"and {achieved['long']:.0%} of its ceiling.")
 
 
 if __name__ == "__main__":
