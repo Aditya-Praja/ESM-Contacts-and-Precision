@@ -156,7 +156,6 @@ def main():
           f"{df.params_m.nunique()} model sizes\n")
     cols = [f"p_at_L_{b}" for b in BANDS]
     print(df.groupby(["params_m", "model"])[cols].mean().round(3).to_string())
-    print("\nnext: python plot_curve.py")
 
 
 if __name__ == "__main__":

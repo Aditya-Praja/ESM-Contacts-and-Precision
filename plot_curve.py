@@ -1,14 +1,3 @@
-#!/usr/bin/env python3
-"""
-plot_curve.py — Project 1, stage 3: the figure.
-
-Reads the cache from run_sweep.py and draws contact precision against model
-size, with all three separation bands. The contrast is the argument: short
-range is flat across scale, long range climbs.
-
-    python plot_curve.py
-    python plot_curve.py --min-length 100    # drop chains where the ceiling binds
-"""
 import argparse
 import sys
 from pathlib import Path
@@ -23,9 +12,6 @@ except ImportError:
 
 from contacts import BANDS
 
-# Display order (drawn last = on top) and style per band. The boundaries
-# themselves come from contacts.BANDS, so labels cannot drift out of sync
-# with what run_sweep.py actually measured.
 STYLE = {
     "short":  ("#a8b0ba", "^", ":",  1.3, 4.5),
     "medium": ("#9f7aea", "s", "--", 1.5, 5.0),
@@ -96,7 +82,6 @@ def main():
     fig.savefig(out)
     print(f"wrote {out}")
 
-    # ---- the numbers behind the figure ----------------------------------
     print("\nmean +/- SEM by model size (paste into the README table):\n")
     for name in ("short", "medium", "long"):
         g = df.groupby("params_m")[f"p_at_L_{name}"]
