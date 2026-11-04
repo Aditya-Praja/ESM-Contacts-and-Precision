@@ -110,15 +110,11 @@ def main():
     p_long, _, _ = band_precision(pred, true, L, 24, None)
     print()
     if p_long < chance * 3:
-        print("FAIL  long-range is near chance. Sequence and contact map probably")
-        print("      describe different residues. Check the chain and the glycine branch.")
+        print("FAIL")
     elif achieved["short"] < 0.5:
-        print("WARN  short-range reaches under half its ceiling. Local structure is the")
-        print("      easy case, so suspect the ground truth rather than the model.")
+        print("WARN")
     else:
-        print("OK    numbers are sane. Wrap this in two loops and you have run_sweep.py.")
-        print(f"      long-range is {p_long / chance:.0f}x chance "
-              f"and {achieved['long']:.0%} of its ceiling.")
+        print("OK")
 
 
 if __name__ == "__main__":
