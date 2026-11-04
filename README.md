@@ -6,16 +6,6 @@ trained only to fill in masked amino acids — it never sees a structure.
 
 ![Contact precision vs ESM-2 scale](results/scaling_curve.png)
 
-## Result
-
-| Band | 8M | 35M | 150M | 650M | 3B |
-|---|---|---|---|---|---|
-| Short 6–12 | | | | | |
-| Medium 12–24 | | | | | |
-| Long ≥24 | | | | | |
-
-
-
 ## Run
 
 ```bash
